@@ -8,8 +8,10 @@ import me.A5H73Y.parkour.utilities.Static;
 import me.A5H73Y.parkour.utilities.Utils;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityCombustEvent;
@@ -25,6 +27,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+
 public class PlayerListener implements Listener {
 
     @EventHandler
@@ -60,6 +64,21 @@ public class PlayerListener implements Listener {
         if (!Utils.hasPermission(event.getPlayer(), "Parkour.Admin")
                 || (!Parkour.getPlugin().getConfig().getBoolean("OnCourse.AdminPlaceBreakBlocks")))
             event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        Player player = event.getPlayer();
+        Entity e = event.getRightClicked();
+        if(e instanceof ItemFrame) {
+            if(!PlayerMethods.isPlaying(player.getName())) {
+                return;
+            }
+
+            if(!(Utils.hasPermission(player, "Parkour.Admin") && Parkour.getPlugin().getConfig().getBoolean("OnCourse.AdminPlaceBreakBlocks"))) {
+                event.setCancelled(true);
+            }
+        }
     }
 
     @EventHandler
