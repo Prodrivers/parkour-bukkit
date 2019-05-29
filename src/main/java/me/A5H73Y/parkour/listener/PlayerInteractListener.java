@@ -14,6 +14,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -32,6 +33,17 @@ public class PlayerInteractListener implements Listener {
 
         if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK) && !event.getAction().equals(Action.RIGHT_CLICK_AIR)) {
             return;
+        }
+
+        Action action = event.getAction();
+        Block clicked = event.getClickedBlock();
+
+        if(event.hasBlock()) {
+            if (clicked.getBlockData() instanceof TrapDoor) {
+                if (!(Utils.hasPermission(player, "Parkour.Admin") && Parkour.getPlugin().getConfig().getBoolean("OnCourse.AdminPlaceBreakBlocks"))) {
+                    event.setCancelled(true);
+                }
+            }
         }
 
         if (!player.isSneaking() && Parkour.getPlugin().getConfig().getBoolean("OnCourse.SneakToInteractItems")) {
