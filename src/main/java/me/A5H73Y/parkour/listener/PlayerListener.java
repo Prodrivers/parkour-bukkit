@@ -24,7 +24,7 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
-
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 public class PlayerListener implements Listener {
 
     @EventHandler
@@ -50,6 +50,16 @@ public class PlayerListener implements Listener {
                 event.setCancelled(true);
             }
         }
+    }
+
+    @EventHandler
+    public void onPlayerInteractArmorStand(PlayerArmorStandManipulateEvent event) {
+        if (!PlayerMethods.isPlaying(event.getPlayer().getName()))
+            return;
+
+        if (!Utils.hasPermission(event.getPlayer(), "Parkour.Admin")
+                || (!Parkour.getPlugin().getConfig().getBoolean("OnCourse.AdminPlaceBreakBlocks")))
+            event.setCancelled(true);
     }
 
     @EventHandler
