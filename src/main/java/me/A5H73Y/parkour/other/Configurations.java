@@ -553,6 +553,7 @@ public class Configurations {
         config.addDefault("Other.Display.ShowMilliseconds", false);
         config.addDefault("Other.Display.PrizeCooldown", true);
         config.addDefault("Other.OnServerShutdown.BackupFiles", false);
+        config.addDefault("Other.Database.InsertPlayerUniqueId", false);
 
         config.addDefault("SQLite.PathOverride", "");
         config.addDefault("MySQL.Use", false);

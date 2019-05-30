@@ -188,4 +188,8 @@ public class Settings {
         }
         return trailParticle;
     }
+
+    public boolean isInsertPlayerUniqueId() {
+        return getConfig().getBoolean("Other.Database.InsertPlayerUniqueId");
+    }
 }

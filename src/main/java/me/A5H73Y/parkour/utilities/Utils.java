@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import com.connorlinfoot.bountifulapi.BountifulAPI;
 import me.A5H73Y.parkour.Parkour;
@@ -1110,4 +1112,15 @@ public final class Utils {
         return snd;
     }
 
+    /**
+     * Get a corresponding byte array from an UUID
+     * @param uniqueId Input UUID
+     * @return Input UUID's byte array
+     */
+    public static byte[] getBytesFromUniqueId(UUID uniqueId) {
+		ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
+		bb.putLong(uniqueId.getMostSignificantBits());
+		bb.putLong(uniqueId.getLeastSignificantBits());
+		return bb.array();
+	}
 }

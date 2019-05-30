@@ -856,7 +856,7 @@ public class CourseMethods {
         }
 
         boolean liked = args[0].equalsIgnoreCase("like");
-        DatabaseMethods.insertVote(courseName, player.getName(), liked);
+        DatabaseMethods.insertVote(courseName, player.getUniqueId(), player.getName(), liked);
 
         if (liked) {
             player.sendMessage(Static.getParkourString() + "You " + ChatColor.GREEN + "liked " + ChatColor.WHITE + courseName);

@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import me.A5H73Y.parkour.Parkour;
 import me.A5H73Y.parkour.course.CourseInfo;
@@ -126,23 +127,30 @@ public class DatabaseMethods {
      * There are no unique constraints on the times table, so the user is able to have many times for many courses
      *
      * @param courseName
+     * @param playerUniqueId
      * @param playerName
      * @param time
      * @param deaths
      */
-    private static void insertTime(String courseName, String playerName, long time, int deaths) {
+    public static void insertTime(String courseName, UUID playerUniqueId, String playerName, long time, int deaths){
         try {
             int courseId = getCourseId(courseName);
             if (courseId == 0) {
                 return;
             }
-
-            PreparedStatement ps = Parkour.getDatabase().openConnection()
-                    .prepareStatement("INSERT INTO `time` (`courseId`, `player`, `time`, `deaths`) VALUES (?, ?, ?, ?);");
+            PreparedStatement ps;
+            if(Parkour.getSettings().isInsertPlayerUniqueId()) {
+                ps = Parkour.getDatabase().openConnection().prepareStatement("INSERT INTO `time` (`courseId`, `player`, `time`, `deaths`, `playeruuid`) VALUES (?, ?, ?, ?, ?);");
+            } else {
+                ps = Parkour.getDatabase().openConnection().prepareStatement("INSERT INTO `time` (`courseId`, `player`, `time`, `deaths`) VALUES (?, ?, ?, ?);");
+            }
             ps.setInt(1, courseId);
             ps.setString(2, playerName);
             ps.setLong(3, time);
             ps.setInt(4, deaths);
+            if(Parkour.getSettings().isInsertPlayerUniqueId()) {
+                ps.setBytes(5, Utils.getBytesFromUniqueId(playerUniqueId));
+            }
             ps.executeUpdate();
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -170,12 +178,12 @@ public class DatabaseMethods {
         }
 
         if (isNewRecord && updatePlayerTime) {
-            deletePlayerCourseTimes(player.getName(), courseName);
-            insertTime(courseName, player.getName(), time, deaths);
+            deletePlayerCourseTimes(player.getUniqueId(), player.getName(), courseName);
+            insertTime(courseName, player.getUniqueId(), player.getName(), time, deaths);
             return;
         }
         if (!updatePlayerTime) {
-            insertTime(courseName, player.getName(), time, deaths);
+            insertTime(courseName, player.getUniqueId(), player.getName(), time, deaths);
         }
     }
 
@@ -183,21 +191,28 @@ public class DatabaseMethods {
      * When a player votes whether or not a player likes course.
      *
      * @param courseName
+     * @param playerUniqueId
      * @param playerName
      * @param like
      */
-    public static void insertVote(String courseName, String playerName, Boolean like) {
+    public static void insertVote(String courseName, UUID playerUniqueId, String playerName, Boolean like){
         try {
             int courseId = getCourseId(courseName);
             if (courseId == 0) {
                 return;
             }
-
-            PreparedStatement ps = Parkour.getDatabase().openConnection()
-                    .prepareStatement("INSERT INTO `vote` (courseId, player, liked) VALUES (?, ?, ?);");
+            PreparedStatement ps;
+            if(Parkour.getSettings().isInsertPlayerUniqueId()) {
+                ps = Parkour.getDatabase().openConnection().prepareStatement("INSERT INTO `vote` (courseId, player, liked, playeruuid) VALUES (?, ?, ?, ?);");
+            } else {
+                ps = Parkour.getDatabase().openConnection().prepareStatement("INSERT INTO `vote` (courseId, player, liked) VALUES (?, ?, ?);");
+            }
             ps.setInt(1, courseId);
             ps.setString(2, playerName);
             ps.setBoolean(3, like);
+            if(Parkour.getSettings().isInsertPlayerUniqueId()) {
+                ps.setBytes(4, Utils.getBytesFromUniqueId(playerUniqueId));
+            }
             ps.executeUpdate();
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -329,17 +344,24 @@ public class DatabaseMethods {
         }
     }
 
-    public static void deletePlayerCourseTimes(String playerName, String courseName) {
+    public static void deletePlayerCourseTimes(UUID playerUniqueId, String playerName, String courseName) {
         try {
             int courseId = getCourseId(courseName);
             if (courseId == 0) {
                 return;
             }
 
-            PreparedStatement ps = Parkour.getDatabase().openConnection()
-                    .prepareStatement("DELETE FROM `time` WHERE `player`=? AND `courseId`=?;");
+            PreparedStatement ps;
+            if(Parkour.getSettings().isInsertPlayerUniqueId()) {
+                ps = Parkour.getDatabase().openConnection().prepareStatement("DELETE FROM `time` WHERE `playeruuid`=? AND `courseId`=?;");
+            } else {
+                ps = Parkour.getDatabase().openConnection().prepareStatement("DELETE FROM `time` WHERE `player`=? AND `courseId`=?;");
+            }
 
-            ps.setString(1, playerName);
+            if(Parkour.getSettings().isInsertPlayerUniqueId())
+                ps.setBytes(1, Utils.getBytesFromUniqueId(playerUniqueId));
+            else
+            	ps.setString(1, playerName);
             ps.setInt(2, courseId);
             ps.executeUpdate();
         } catch (SQLException | ClassNotFoundException e) {
