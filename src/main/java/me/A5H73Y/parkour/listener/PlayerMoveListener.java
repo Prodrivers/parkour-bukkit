@@ -127,7 +127,13 @@ public class PlayerMoveListener implements Listener {
                     break;
 
                 case "death":
-                    PlayerMethods.playerDie(player);
+                    if(belowMaterial == Material.WATER || belowMaterial == Material.LAVA) {
+                        if (player.getLocation().getBlock().isLiquid()) {
+                            PlayerMethods.playerDie(player);
+                        }
+                    } else {
+                        PlayerMethods.playerDie(player);
+                    }
                     break;
 
                 case "launch":
