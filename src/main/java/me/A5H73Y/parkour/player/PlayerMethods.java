@@ -324,6 +324,10 @@ public class PlayerMethods {
             session.increaseCheckpoint();
         }
 
+        for (PotionEffect effect : player.getActivePotionEffects()) {
+            player.removePotionEffect(effect.getType());
+        }
+
         player.sendMessage(Utils.getTranslation("Parkour.Restarting"));
         player.teleport(session.getCourse().getCurrentCheckpoint().getLocation());
     }
