@@ -102,6 +102,7 @@ public class PlayerListener implements Listener {
 
         if (Parkour.getSettings().isDisablePlayerDamage()) {
             event.setDamage(0);
+            event.setCancelled(true);
             return;
         }
 
