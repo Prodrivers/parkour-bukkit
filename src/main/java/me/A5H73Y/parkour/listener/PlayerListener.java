@@ -102,8 +102,13 @@ public class PlayerListener implements Listener {
 
         if (Parkour.getSettings().isDisablePlayerDamage()) {
             event.setDamage(0);
-            if (event.getCause() != EntityDamageEvent.DamageCause.CONTACT) {
-                event.setCancelled( true );
+            if (event.getCause() != EntityDamageEvent.DamageCause.CONTACT
+                    && event.getCause() != EntityDamageEvent.DamageCause.FIRE
+                    && event.getCause() != EntityDamageEvent.DamageCause.HOT_FLOOR
+                    && event.getCause() != EntityDamageEvent.DamageCause.LAVA
+                    && event.getCause() != EntityDamageEvent.DamageCause.POISON
+                    && event.getCause() != EntityDamageEvent.DamageCause.WITHER) {
+                event.setCancelled(true);
             }
             return;
         }
