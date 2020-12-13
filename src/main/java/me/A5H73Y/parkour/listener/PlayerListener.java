@@ -1,8 +1,10 @@
 package me.A5H73Y.parkour.listener;
 
 import me.A5H73Y.parkour.Parkour;
+import me.A5H73Y.parkour.course.CourseInfo;
 import me.A5H73Y.parkour.enums.ParkourMode;
 import me.A5H73Y.parkour.manager.ChallengeManager;
+import me.A5H73Y.parkour.player.ParkourSession;
 import me.A5H73Y.parkour.player.PlayerMethods;
 import me.A5H73Y.parkour.utilities.Static;
 import me.A5H73Y.parkour.utilities.Utils;
@@ -248,6 +250,12 @@ public class PlayerListener implements Listener {
         }
 
         if (!Parkour.getPlugin().getConfig().getBoolean("OnCourse.PreventOpeningOtherInventories")) {
+            return;
+        }
+
+        ParkourSession session = PlayerMethods.getParkourSession(event.getPlayer().getName());
+        String courseName = session.getCourse().getName();
+        if(CourseInfo.getAllowedInventoryOpen(courseName, event.getView().getType())) {
             return;
         }
 

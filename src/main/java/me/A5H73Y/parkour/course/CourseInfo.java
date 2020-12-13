@@ -13,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 
 public class CourseInfo {
 
@@ -517,6 +518,11 @@ public class CourseInfo {
     public static boolean getAllowedBlockInteraction(String courseName, Material block) {
         return Parkour.getParkourConfig().getCourseData().getBoolean(courseName.toLowerCase() + ".AllowedBlockInteractions." + block, false);
     }
+
+    public static boolean getAllowedInventoryOpen(String courseName, InventoryType inventoryType) {
+        return Parkour.getParkourConfig().getCourseData().getBoolean(courseName.toLowerCase() + ".AllowedInventoryOpen." + inventoryType, false);
+    }
+
     public static void resetLinks(String courseName) {
         Parkour.getParkourConfig().getCourseData().set(courseName.toLowerCase() + ".LinkedLobby", null);
         Parkour.getParkourConfig().getCourseData().set(courseName.toLowerCase() + ".LinkedCourse", null);
