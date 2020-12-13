@@ -1,10 +1,7 @@
 package me.A5H73Y.parkour.listener;
 
 import me.A5H73Y.parkour.Parkour;
-import me.A5H73Y.parkour.course.Checkpoint;
-import me.A5H73Y.parkour.course.CheckpointMethods;
-import me.A5H73Y.parkour.course.Course;
-import me.A5H73Y.parkour.course.CourseMethods;
+import me.A5H73Y.parkour.course.*;
 import me.A5H73Y.parkour.enums.ParkourMode;
 import me.A5H73Y.parkour.player.ParkourSession;
 import me.A5H73Y.parkour.player.PlayerMethods;
@@ -14,9 +11,9 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
-import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -33,17 +30,6 @@ public class PlayerInteractListener implements Listener {
 
         if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK) && !event.getAction().equals(Action.RIGHT_CLICK_AIR)) {
             return;
-        }
-
-        Action action = event.getAction();
-        Block clicked = event.getClickedBlock();
-
-        if(event.hasBlock()) {
-            if (clicked.getBlockData() instanceof TrapDoor) {
-                if (!(Utils.hasPermission(player, "Parkour.Admin") && Parkour.getPlugin().getConfig().getBoolean("OnCourse.AdminPlaceBreakBlocks"))) {
-                    event.setCancelled(true);
-                }
-            }
         }
 
         if (!player.isSneaking() && Parkour.getPlugin().getConfig().getBoolean("OnCourse.SneakToInteractItems")) {
@@ -96,7 +82,8 @@ public class PlayerInteractListener implements Listener {
             return;
         }
 
-        ParkourMode mode = PlayerMethods.getParkourSession(event.getPlayer().getName()).getMode();
+        ParkourSession session = PlayerMethods.getParkourSession(event.getPlayer().getName());
+        ParkourMode mode = session.getMode();
 
         if (mode != ParkourMode.FREEDOM && mode != ParkourMode.ROCKETS) {
             return;
@@ -106,6 +93,14 @@ public class PlayerInteractListener implements Listener {
 
         if (PlayerMethods.isPlayerInTestmode(player.getName())) {
             return;
+        }
+
+        Block clicked = event.getClickedBlock();
+        if(event.hasBlock() && clicked != null) {
+            String courseName = session.getCourse().getName();
+            if(CourseInfo.getAllowedBlockInteraction(courseName, clicked.getBlockData().getMaterial())) {
+                return;
+            }
         }
 
         event.setCancelled(true);
@@ -199,6 +194,22 @@ public class PlayerInteractListener implements Listener {
 
         if (courseName != null) {
             CourseMethods.joinCourseButDelayed(event.getPlayer(), courseName, Parkour.getSettings().getAutoStartDelay());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onBlockInteract(PlayerInteractEvent event) {
+        if (!PlayerMethods.isPlaying(event.getPlayer().getName())) {
+            return;
+        }
+
+        Block clicked = event.getClickedBlock();
+        if(event.hasBlock() && clicked != null) {
+            ParkourSession session = PlayerMethods.getParkourSession(event.getPlayer().getName());
+            String courseName = session.getCourse().getName();
+            if(!CourseInfo.getAllowedBlockInteraction(courseName, clicked.getBlockData().getMaterial())) {
+                event.setCancelled(true);
+            }
         }
     }
 }

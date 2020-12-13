@@ -514,6 +514,9 @@ public class CourseInfo {
         return Parkour.getParkourConfig().getCourseData().contains(courseName.toLowerCase() + ".Prize.Material");
     }
 
+    public static boolean getAllowedBlockInteraction(String courseName, Material block) {
+        return Parkour.getParkourConfig().getCourseData().getBoolean(courseName.toLowerCase() + ".AllowedBlockInteractions." + block, false);
+    }
     public static void resetLinks(String courseName) {
         Parkour.getParkourConfig().getCourseData().set(courseName.toLowerCase() + ".LinkedLobby", null);
         Parkour.getParkourConfig().getCourseData().set(courseName.toLowerCase() + ".LinkedCourse", null);
