@@ -160,7 +160,14 @@ public class PlayerListener extends AbstractPluginReceiver implements Listener {
 
         if (parkour.getConfig().isDisablePlayerDamage()) {
             event.setDamage(0);
-            event.setCancelled(true);
+            if (event.getCause() != EntityDamageEvent.DamageCause.CONTACT
+                    && event.getCause() != EntityDamageEvent.DamageCause.FIRE
+                    && event.getCause() != EntityDamageEvent.DamageCause.HOT_FLOOR
+                    && event.getCause() != EntityDamageEvent.DamageCause.LAVA
+                    && event.getCause() != EntityDamageEvent.DamageCause.POISON
+                    && event.getCause() != EntityDamageEvent.DamageCause.WITHER) {
+                event.setCancelled(true);
+            }
             return;
         }
 
