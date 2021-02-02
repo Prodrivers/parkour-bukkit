@@ -21,6 +21,7 @@ import java.util.Set;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
@@ -705,6 +706,18 @@ public class CourseInfo {
     public static boolean getAllowedBlockInteraction(@NotNull String courseName, @NotNull Material block) {
         courseName = courseName.toLowerCase();
         return getCourseConfig().getBoolean(courseName + ".AllowedBlockInteractions." + block, false);
+    }
+
+    /**
+     * Get if interaction with a specific entity is authorized in a course.
+     *
+     * @param courseName course name
+     * @param entity entity to test interaction with
+     * @return {@code true} if interaction with entity is allowed
+     */
+    public static boolean getAllowedEntityInteraction(@NotNull String courseName, @NotNull Entity entity) {
+        courseName = courseName.toLowerCase();
+        return getCourseConfig().getBoolean(courseName + ".AllowedBlockInteractions." + entity.getType(), false);
     }
 
     /**
