@@ -664,6 +664,18 @@ public class CourseInfo {
     }
 
     /**
+     * Get if interaction with a specific block is authorized in a course.
+     *
+     * @param courseName course name
+     * @param block block to test interaction with
+     * @return {@code true} if interaction with block is allowed
+     */
+    public static boolean getAllowedBlockInteraction(@NotNull String courseName, @NotNull Material block) {
+        courseName = courseName.toLowerCase();
+        return getCourseConfig().getBoolean(courseName + ".AllowedBlockInteractions." + block, false);
+    }
+
+    /**
      * Reset Prizes for Course completion.
      * @param courseName course name
      */
