@@ -8,6 +8,7 @@ import io.github.a5h73y.parkour.enums.ParkourMode;
 import io.github.a5h73y.parkour.enums.SoundType;
 import io.github.a5h73y.parkour.other.AbstractPluginReceiver;
 import io.github.a5h73y.parkour.type.checkpoint.Checkpoint;
+import io.github.a5h73y.parkour.type.course.CourseInfo;
 import io.github.a5h73y.parkour.type.player.ParkourSession;
 import io.github.a5h73y.parkour.utility.MaterialUtils;
 import io.github.a5h73y.parkour.utility.PlayerUtils;
@@ -121,7 +122,8 @@ public class PlayerInteractListener extends AbstractPluginReceiver implements Li
             return;
         }
 
-        ParkourMode mode = parkour.getPlayerManager().getParkourSession(event.getPlayer()).getParkourMode();
+        ParkourSession session = parkour.getPlayerManager().getParkourSession(event.getPlayer());
+        ParkourMode mode = session.getParkourMode();
 
         if (mode != ParkourMode.FREEDOM && mode != ParkourMode.ROCKETS) {
             return;
@@ -131,6 +133,14 @@ public class PlayerInteractListener extends AbstractPluginReceiver implements Li
 
         if (parkour.getPlayerManager().isPlayerInTestMode(player)) {
             return;
+        }
+
+        Block clicked = event.getClickedBlock();
+        if (event.hasBlock() && clicked != null) {
+            String courseName = session.getCourse().getName();
+            if (CourseInfo.getAllowedBlockInteraction(courseName, clicked.getBlockData().getMaterial())) {
+                return;
+            }
         }
 
         event.setCancelled(true);
@@ -270,6 +280,29 @@ public class PlayerInteractListener extends AbstractPluginReceiver implements Li
             } else {
                 parkour.getPlayerManager().joinCourseButDelayed(
                         event.getPlayer(), courseName, parkour.getConfig().getAutoStartDelay());
+            }
+        }
+    }
+
+    /**
+     * Handle Block Interaction Event.
+     * Block interaction with all blocks when in a course, with configurable exceptions per course.
+     *
+     * @param event PlayerInteractEvent
+     */
+    @EventHandler
+    public void onBlockInteract(PlayerInteractEvent event) {
+        if (!parkour.getPlayerManager().isPlaying(event.getPlayer())) {
+            return;
+        }
+
+        Block clicked = event.getClickedBlock();
+        if (event.hasBlock() && clicked != null) {
+            ParkourSession session = parkour.getPlayerManager().getParkourSession(event.getPlayer());
+            String courseName = session.getCourse().getName();
+
+            if (!CourseInfo.getAllowedBlockInteraction(courseName, clicked.getBlockData().getMaterial())) {
+                event.setCancelled(true);
             }
         }
     }
