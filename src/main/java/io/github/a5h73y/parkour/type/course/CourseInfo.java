@@ -22,6 +22,7 @@ import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -704,6 +705,18 @@ public class CourseInfo {
     public static boolean getAllowedBlockInteraction(@NotNull String courseName, @NotNull Material block) {
         courseName = courseName.toLowerCase();
         return getCourseConfig().getBoolean(courseName + ".AllowedBlockInteractions." + block, false);
+    }
+
+    /**
+     * Get if interaction with a specific inventory type is authorized in a course.
+     *
+     * @param courseName course name
+     * @param inventoryType inventory type to test interaction with
+     * @return {@code true} if interaction with inventory type is allowed
+     */
+    public static boolean getAllowedInventoryOpen(@NotNull String courseName, @NotNull InventoryType inventoryType) {
+        courseName = courseName.toLowerCase();
+        return getCourseConfig().getBoolean(courseName + ".AllowedInventoryOpen." + inventoryType, false);
     }
 
     /**
