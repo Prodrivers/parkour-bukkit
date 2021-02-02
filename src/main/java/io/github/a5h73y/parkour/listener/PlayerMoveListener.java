@@ -91,7 +91,13 @@ public class PlayerMoveListener extends AbstractPluginReceiver implements Listen
                     break;
 
                 case DEATH:
-                    parkour.getPlayerManager().playerDie(player);
+                    if (belowMaterial == Material.WATER || belowMaterial == Material.LAVA) {
+                        if (player.getLocation().getBlock().isLiquid()) {
+                            parkour.getPlayerManager().playerDie(player);
+                        }
+                    } else {
+                        parkour.getPlayerManager().playerDie(player);
+                    }
                     break;
 
                 case LAUNCH:
