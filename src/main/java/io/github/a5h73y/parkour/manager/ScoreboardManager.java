@@ -38,6 +38,7 @@ public class ScoreboardManager extends AbstractPluginReceiver {
     private static final String CURRENT_DEATHS = ChatColor.DARK_GREEN.toString();
     private static final String CHECKPOINTS = ChatColor.DARK_RED.toString();
     private static final String LIVE_TIMER = ChatColor.DARK_BLUE.toString();
+    private static final String TIME_REMAINING_TIMER = ChatColor.DARK_PURPLE.toString();
 
     // final translations
     private final String titleFormat = TranslationUtils.getTranslation("Scoreboard.TitleFormat", false);
@@ -66,6 +67,7 @@ public class ScoreboardManager extends AbstractPluginReceiver {
         scoreboardDetails.put(CURRENT_DEATHS, generateScoreboard("CurrentDeaths"));
         scoreboardDetails.put(CHECKPOINTS, generateScoreboard("Checkpoints"));
         scoreboardDetails.put(LIVE_TIMER, generateScoreboard("LiveTimer"));
+        scoreboardDetails.put(TIME_REMAINING_TIMER, generateScoreboard("TimeRemaining"));
 
         this.numberOfRowsNeeded = calculateNumberOfRowsNeeded();
     }
@@ -111,6 +113,24 @@ public class ScoreboardManager extends AbstractPluginReceiver {
         }
 
         board.getTeam(LIVE_TIMER).setPrefix(convertText(liveTime));
+    }
+
+    /**
+     * Update the Scoreboard Remaining Time Timer.
+     * Display the current time value in the Player's Scoreboard.
+     * Should be called only for courses with a max time.
+     *
+     * @param player player
+     * @param remainingTimeTimer remaining time value
+     */
+    public void updateScoreboardRemainingTimeTimer(Player player, String remainingTimeTimer) {
+        Scoreboard board = player.getScoreboard();
+
+        if (!enabled || !scoreboardDetails.get(TIME_REMAINING_TIMER).isEnabled() || board.getTeam(TIME_REMAINING_TIMER) == null) {
+            return;
+        }
+
+        board.getTeam(TIME_REMAINING_TIMER).setPrefix(convertText(remainingTimeTimer));
     }
 
     /**
@@ -190,10 +210,21 @@ public class ScoreboardManager extends AbstractPluginReceiver {
     }
 
     private void registerAllEntries(PlayerScoreboard playerBoard) {
+        boolean hasMaxTime = playerBoard.getSession().getCourse().hasMaxTime();
+
         scoreboardDetails.entrySet().stream()
                 .filter(detail -> detail.getValue().isEnabled())
                 .sorted(Comparator.comparingInt(detail -> detail.getValue().getSequence()))
-                .forEach(detail -> registerTeam(playerBoard, detail.getKey(), detail.getValue()));
+                .forEach(detail -> {
+                    if (hasMaxTime && detail.getKey().equals(LIVE_TIMER)
+                            && scoreboardDetails.get(TIME_REMAINING_TIMER).isEnabled()) {
+                        return;
+                    }
+                    if (!hasMaxTime && detail.getKey().equals(TIME_REMAINING_TIMER)) {
+                        return;
+                    }
+                    registerTeam(playerBoard, detail.getKey(), detail.getValue());
+                });
     }
 
     private ScoreboardEntry generateScoreboard(String keyName) {

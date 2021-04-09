@@ -140,6 +140,8 @@ public class DefaultConfig extends ParkourConfiguration {
 		this.addDefault("Scoreboard.Checkpoints.Sequence", 6);
 		this.addDefault("Scoreboard.LiveTimer.Enabled", true);
 		this.addDefault("Scoreboard.LiveTimer.Sequence", 7);
+		this.addDefault("Scoreboard.TimeRemaining.Enabled", true);
+		this.addDefault("Scoreboard.TimeRemaining.Sequence", 8);
 
 		this.addDefault("Sounds.Enabled", true);
 		this.addDefault("Sounds.SecondIncrement.Enabled", true);
