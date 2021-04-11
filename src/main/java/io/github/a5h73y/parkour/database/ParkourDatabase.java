@@ -7,6 +7,7 @@ import io.github.a5h73y.parkour.type.Cacheable;
 import io.github.a5h73y.parkour.type.course.CourseInfo;
 import io.github.a5h73y.parkour.utility.DateTimeUtils;
 import io.github.a5h73y.parkour.utility.PluginUtils;
+import io.github.a5h73y.parkour.utility.StringUtils;
 import io.github.a5h73y.parkour.utility.TranslationUtils;
 import java.io.File;
 import java.sql.ResultSet;
@@ -140,7 +141,7 @@ public class ParkourDatabase extends AbstractPluginReceiver implements Cacheable
         }
 
         String playerResultsQuery = "SELECT * FROM time WHERE courseId=" + courseId
-                + " AND playerId='" + getPlayerId(player) + "' ORDER BY time LIMIT " + maxEntries;
+                + " AND playeruuid=" + getPlayerId(player) + " ORDER BY time LIMIT " + maxEntries;
 
         try (ResultSet rs = database.query(playerResultsQuery)) {
             times = processTimes(rs);
@@ -168,7 +169,7 @@ public class ParkourDatabase extends AbstractPluginReceiver implements Cacheable
         }
 
         String timeExistsQuery = "SELECT 1 FROM time WHERE courseId=" + courseId
-                + " AND playerId='" + getPlayerId(player) + "' LIMIT 1;";
+                + " AND playeruuid=" + getPlayerId(player) + " LIMIT 1;";
 
         try (ResultSet rs = database.query(timeExistsQuery)) {
             timeExists = rs.next();
@@ -198,7 +199,7 @@ public class ParkourDatabase extends AbstractPluginReceiver implements Cacheable
         String leaderboardPositionQuery = "SELECT 1 FROM time WHERE courseId=" + courseId + " AND time < " + time;
 
         if (player != null) {
-            leaderboardPositionQuery += " AND playerId='" + getPlayerId(player) + "';";
+            leaderboardPositionQuery += " AND playeruuid=" + getPlayerId(player) + ";";
         }
 
         PluginUtils.debug("Checking leaderboard position for: " + leaderboardPositionQuery);
@@ -282,8 +283,8 @@ public class ParkourDatabase extends AbstractPluginReceiver implements Cacheable
             return;
         }
 
-        String insertTimeUpdate = "INSERT INTO time (courseId, playerId, playerName, time, deaths) VALUES ("
-                + courseId + ", '" + getPlayerId(player) + "', '"
+        String insertTimeUpdate = "INSERT INTO time (courseId, playeruuid, player, time, deaths) VALUES ("
+                + courseId + ", " + getPlayerId(player) + ", '"
                 + player.getName() + "', " + time + ", " + deaths + ");";
         PluginUtils.debug("Inserting time: " + insertTimeUpdate);
 
@@ -330,7 +331,7 @@ public class ParkourDatabase extends AbstractPluginReceiver implements Cacheable
     public void deletePlayerTimes(OfflinePlayer player) {
         PluginUtils.debug("Deleting all Player times for " + player.getName());
         try {
-            database.updateAsync("DELETE FROM time WHERE playerId='" + getPlayerId(player) + "'").get();
+            database.updateAsync("DELETE FROM time WHERE playeruuid=" + getPlayerId(player) + "").get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
@@ -370,8 +371,8 @@ public class ParkourDatabase extends AbstractPluginReceiver implements Cacheable
 
         PluginUtils.debug("Deleting all times for player " + player.getName() + " for course " + courseName);
         try {
-            database.updateAsync("DELETE FROM time WHERE playerId='" + getPlayerId(player)
-                    + "' AND courseId=" + courseId).get();
+            database.updateAsync("DELETE FROM time WHERE playeruuid=" + getPlayerId(player)
+                    + " AND courseId=" + courseId).get();
             resultsCache.remove(courseName.toLowerCase());
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
@@ -562,8 +563,8 @@ public class ParkourDatabase extends AbstractPluginReceiver implements Cacheable
         String createTimesTable = "CREATE TABLE IF NOT EXISTS time ("
                 + "timeId INTEGER PRIMARY KEY AUTO_INCREMENT, "
                 + "courseId INTEGER NOT NULL, "
-                + "playerId CHAR(36) CHARACTER SET ascii NOT NULL, "
-                + "playerName VARCHAR(16) NOT NULL, "
+                + "playerId BINARY(16) NOT NULL, "
+                + "player VARCHAR(16) NOT NULL, "
                 + "time DECIMAL(13,0) NOT NULL, "
                 + "deaths INT(5) NOT NULL, "
                 + "FOREIGN KEY (courseId) REFERENCES course(courseId) ON DELETE CASCADE ON UPDATE CASCADE);";
@@ -614,8 +615,8 @@ public class ParkourDatabase extends AbstractPluginReceiver implements Cacheable
 
         while (rs.next()) {
             TimeEntry time = new TimeEntry(
-                    rs.getString("playerId"),
-                    rs.getString("playerName"),
+                    getPlayerId(rs.getBytes("playeruuid")),
+                    rs.getString("player"),
                     rs.getLong("time"),
                     rs.getInt("deaths"));
             times.add(time);
@@ -645,7 +646,11 @@ public class ParkourDatabase extends AbstractPluginReceiver implements Cacheable
     }
 
     public static String getPlayerId(OfflinePlayer player) {
-        return player.getUniqueId().toString().replace("-", "");
+        return "UNHEX('" + player.getUniqueId().toString().replace("-", "") + "')";
+    }
+
+    public static String getPlayerId(byte[] playerId) {
+        return StringUtils.bytesToHex(playerId);
     }
 
     @Override
