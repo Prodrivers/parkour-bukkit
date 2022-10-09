@@ -9,6 +9,7 @@ import io.github.a5h73y.parkour.utility.TranslationUtils;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Damageable;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,13 +19,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.event.player.*;
 
 public class PlayerListener extends AbstractPluginReceiver implements Listener {
 
@@ -343,6 +338,54 @@ public class PlayerListener extends AbstractPluginReceiver implements Listener {
         }
 
         if (event.getInventory().getType() != InventoryType.PLAYER) {
+            event.setCancelled(true);
+        }
+    }
+
+    /**
+     * Handle Player Interaction Event with Armor Stand.
+     * Prevent the Player from interacting with armor stands while on a Course.
+     *
+     * @param event EntityCombustEvent
+     */
+    @EventHandler
+    public void onPlayerInteractArmorStand(PlayerArmorStandManipulateEvent event) {
+        Player player = event.getPlayer();
+
+        if (!parkour.getParkourSessionManager().isPlaying(event.getPlayer())) {
+            return;
+        }
+
+        Entity target = event.getRightClicked();
+
+        ParkourSession session = parkour.getParkourSessionManager().getParkourSession(player);
+        CourseConfig courseConfig = Parkour.getInstance().getConfigManager().getCourseConfig(session.getCourseName());
+
+        if (!courseConfig.getAllowedEntityInteraction(target)) {
+            event.setCancelled(true);
+        }
+    }
+
+    /**
+     * Handle Player Interaction Event with Item Frames.
+     * Prevent the Player from interacting with item frames while on a Course.
+     *
+     * @param event EntityCombustEvent
+     */
+    @EventHandler
+    public void onPlayerInteractItemFrame(PlayerInteractEntityEvent event) {
+        Player player = event.getPlayer();
+
+        if (!parkour.getParkourSessionManager().isPlaying(event.getPlayer())) {
+            return;
+        }
+
+        Entity target = event.getRightClicked();
+
+        ParkourSession session = parkour.getParkourSessionManager().getParkourSession(player);
+        CourseConfig courseConfig = Parkour.getInstance().getConfigManager().getCourseConfig(session.getCourseName());
+
+        if (!courseConfig.getAllowedEntityInteraction(target)) {
             event.setCancelled(true);
         }
     }

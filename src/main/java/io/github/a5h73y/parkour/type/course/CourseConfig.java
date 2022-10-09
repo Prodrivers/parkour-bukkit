@@ -23,6 +23,7 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
@@ -1122,5 +1123,15 @@ public class CourseConfig extends Json {
      */
     public boolean getAllowedInventoryOpen(@NotNull InventoryType inventoryType) {
         return this.get("AllowedInventoryOpen." + inventoryType, false);
+    }
+
+    /**
+     * Get if interaction with a specific entity is authorized in a course.
+     *
+     * @param entity entity to test interaction with
+     * @return {@code true} if interaction with entity is allowed
+     */
+    public boolean getAllowedEntityInteraction(@NotNull Entity entity) {
+        return this.get("AllowedBlockInteractions." + entity.getType(), false);
     }
 }
