@@ -13,6 +13,7 @@ import io.github.a5h73y.parkour.configuration.impl.DefaultConfig;
 import io.github.a5h73y.parkour.type.CacheableParkourManager;
 import io.github.a5h73y.parkour.type.Initializable;
 import io.github.a5h73y.parkour.utility.PluginUtils;
+import io.github.a5h73y.parkour.utility.StringUtils;
 import io.github.a5h73y.parkour.utility.TranslationUtils;
 import io.github.a5h73y.parkour.utility.time.DateTimeUtils;
 import java.io.File;
@@ -61,7 +62,16 @@ public class DatabaseManager extends CacheableParkourManager implements Initiali
      * @return player ID
      */
     public static String getPlayerId(@NotNull OfflinePlayer player) {
-        return player.getUniqueId().toString().replace("-", "");
+        return "UNHEX('" + player.getUniqueId().toString().replace("-", "") + "')";
+    }
+
+    /**
+     * Get string representation of Player ID used in Database.
+     * @param playerId player ID as a byte array
+     * @return player ID in hex-form
+     */
+    public static String getPlayerId(byte[] playerId) {
+        return StringUtils.bytesToHex(playerId);
     }
 
     /**
@@ -781,10 +791,10 @@ public class DatabaseManager extends CacheableParkourManager implements Initiali
 
         while (resultSet.next()) {
             TimeEntry time = new TimeEntry(
-                    resultSet.getString(1),
-                    resultSet.getString(2),
-                    resultSet.getLong(3),
-                    resultSet.getInt(4));
+                    resultSet.getString("courseId"),
+                    getPlayerId(resultSet.getBytes("playerId")),
+                    resultSet.getLong("time"),
+                    resultSet.getInt("deaths"));
 
             times.add(time);
         }
