@@ -208,8 +208,10 @@ public class DefaultConfig extends Yaml {
 		this.setDefault("Scoreboard.Checkpoints.Sequence", 6);
 		this.setDefault("Scoreboard.LiveTimer.Enabled", true);
 		this.setDefault("Scoreboard.LiveTimer.Sequence", 7);
+		this.setDefault("Scoreboard.TimeRemaining.Enabled", true);
+		this.setDefault("Scoreboard.TimeRemaining.Sequence", 8);
 		this.setDefault("Scoreboard.RemainingDeaths.Enabled", false);
-		this.setDefault("Scoreboard.RemainingDeaths.Sequence", 8);
+		this.setDefault("Scoreboard.RemainingDeaths.Sequence", 9);
 
 		this.setDefault("Sounds.Enabled", false);
 		this.setDefault("Sounds.JoinCourse.Enabled", true);

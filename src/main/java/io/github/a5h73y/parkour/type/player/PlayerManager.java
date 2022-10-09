@@ -1363,12 +1363,20 @@ public class PlayerManager extends AbstractPluginReceiver implements Initializab
 				Course course = session.getCourse();
 
 				int seconds = session.calculateSeconds();
+				int timeRemaining = seconds;
+
+				if (course.getSettings().hasMaxTime()) {
+					seconds = course.getSettings().getMaxTime() - seconds;
+				}
+
 				String liveTimer = DateTimeUtils.convertSecondsToTime(seconds);
+				String remainingTimeTimer = DateTimeUtils.convertSecondsToTime(timeRemaining);
 
 				if (course.getSettings().hasMaxTime()) {
 					parkour.getSoundsManager().playSound(player, SoundType.SECOND_DECREMENT);
-					if (seconds <= 5 || seconds == 10) {
+					if (timeRemaining <= 5 || timeRemaining == 10) {
 						liveTimer = ChatColor.RED + liveTimer;
+						remainingTimeTimer = ChatColor.RED + remainingTimeTimer;
 					}
 				} else {
 					parkour.getSoundsManager().playSound(player, SoundType.SECOND_INCREMENT);
@@ -1378,9 +1386,14 @@ public class PlayerManager extends AbstractPluginReceiver implements Initializab
 					parkour.getBountifulApi().sendActionBar(player, liveTimer);
 				}
 
-				parkour.getScoreboardManager().updateScoreboardTimer(player, liveTimer);
+				if (course.getSettings().hasMaxTime()) {
+					parkour.getScoreboardManager().updateScoreboardRemainingTimeTimer(
+							player, remainingTimeTimer);
+				} else {
+					parkour.getScoreboardManager().updateScoreboardTimer(player, liveTimer);
+				}
 
-				if (course.getSettings().hasMaxTime() && seconds <= 0) {
+				if (course.getSettings().hasMaxTime() && timeRemaining <= 0) {
 					session.setMarkedForDeletion(true);
 					String maxTime = DateTimeUtils.convertSecondsToTime(course.getSettings().getMaxTime());
 					TranslationUtils.sendValueTranslation("Parkour.MaxTime", maxTime, player);
