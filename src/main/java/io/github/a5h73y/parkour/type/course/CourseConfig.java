@@ -24,6 +24,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -1111,5 +1112,15 @@ public class CourseConfig extends Json {
      */
     public boolean getAllowedBlockInteraction(@NotNull Material block) {
         return this.get("AllowedBlockInteractions." + block, false);
+    }
+
+    /**
+     * Get if interaction with a specific inventory type is authorized in a course.
+     *
+     * @param inventoryType inventory type to test interaction with
+     * @return {@code true} if interaction with inventory type is allowed
+     */
+    public boolean getAllowedInventoryOpen(@NotNull InventoryType inventoryType) {
+        return this.get("AllowedInventoryOpen." + inventoryType, false);
     }
 }

@@ -2,6 +2,7 @@ package io.github.a5h73y.parkour.listener;
 
 import io.github.a5h73y.parkour.Parkour;
 import io.github.a5h73y.parkour.other.AbstractPluginReceiver;
+import io.github.a5h73y.parkour.type.course.CourseConfig;
 import io.github.a5h73y.parkour.type.player.PlayerConfig;
 import io.github.a5h73y.parkour.type.player.session.ParkourSession;
 import io.github.a5h73y.parkour.utility.TranslationUtils;
@@ -332,6 +333,12 @@ public class PlayerListener extends AbstractPluginReceiver implements Listener {
         }
 
         if (!parkour.getParkourConfig().getBoolean("OnCourse.PreventOpeningOtherInventories")) {
+            return;
+        }
+
+        ParkourSession session = parkour.getParkourSessionManager().getParkourSession((Player) event.getPlayer());
+        CourseConfig courseConfig = Parkour.getInstance().getConfigManager().getCourseConfig(session.getCourseName());
+        if (courseConfig.getAllowedInventoryOpen(event.getView().getType())) {
             return;
         }
 
