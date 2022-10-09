@@ -694,7 +694,6 @@ public class DatabaseManager extends CacheableParkourManager implements Initiali
 
     @Override
     public void initialize() {
-        recreateAllCourses(false);
     }
 
     @Override
