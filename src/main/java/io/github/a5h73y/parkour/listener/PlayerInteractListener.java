@@ -4,6 +4,7 @@ import com.cryptomorin.xseries.XBlock;
 import io.github.a5h73y.parkour.Parkour;
 import io.github.a5h73y.parkour.other.AbstractPluginReceiver;
 import io.github.a5h73y.parkour.type.checkpoint.Checkpoint;
+import io.github.a5h73y.parkour.type.course.CourseConfig;
 import io.github.a5h73y.parkour.type.player.ParkourMode;
 import io.github.a5h73y.parkour.type.player.session.ParkourSession;
 import io.github.a5h73y.parkour.type.question.QuestionManager;
@@ -15,6 +16,7 @@ import io.github.a5h73y.parkour.utility.TaskCooldowns;
 import io.github.a5h73y.parkour.utility.TranslationUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -129,7 +131,8 @@ public class PlayerInteractListener extends AbstractPluginReceiver implements Li
 
         Player player = event.getPlayer();
 
-        ParkourMode mode = parkour.getParkourSessionManager().getParkourSession(player).getParkourMode();
+        ParkourSession session = parkour.getParkourSessionManager().getParkourSession(player);
+        ParkourMode mode = session.getParkourMode();
 
         if (mode != ParkourMode.FREEDOM && mode != ParkourMode.ROCKETS) {
             return;
@@ -137,6 +140,15 @@ public class PlayerInteractListener extends AbstractPluginReceiver implements Li
 
         if (parkour.getParkourSessionManager().isPlayerInTestMode(player)) {
             return;
+        }
+
+        Block clicked = event.getClickedBlock();
+        if (event.hasBlock() && clicked != null) {
+            CourseConfig courseConfig = Parkour.getInstance().getConfigManager().getCourseConfig(session.getCourseName());
+
+            if (courseConfig.getAllowedBlockInteraction(clicked.getBlockData().getMaterial())) {
+                return;
+            }
         }
 
         event.setCancelled(true);
@@ -263,6 +275,31 @@ public class PlayerInteractListener extends AbstractPluginReceiver implements Li
         if (TaskCooldowns.getInstance().delayPlayer(player, "reloading",
                 secondDelay, "Mode.Rockets.Reloading", false)) {
             parkour.getPlayerManager().rocketLaunchPlayer(player);
+        }
+    }
+
+    /**
+     * Handle Block Interaction Event.
+     * Block interaction with all blocks when in a course, with configurable exceptions per course.
+     *
+     * @param event PlayerInteractEvent
+     */
+    @EventHandler
+    public void onBlockInteract(PlayerInteractEvent event) {
+        if (!parkour.getParkourSessionManager().isPlaying(event.getPlayer())) {
+            return;
+        }
+
+        Block clicked = event.getClickedBlock();
+        if (event.hasBlock() && clicked != null) {
+            ParkourSession session = parkour.getParkourSessionManager().getParkourSession(event.getPlayer());
+            assert session != null;
+
+            CourseConfig courseConfig = Parkour.getInstance().getConfigManager().getCourseConfig(session.getCourseName());
+
+            if (!courseConfig.getAllowedBlockInteraction(clicked.getBlockData().getMaterial())) {
+                event.setCancelled(true);
+            }
         }
     }
 }

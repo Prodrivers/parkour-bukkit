@@ -1102,4 +1102,14 @@ public class CourseConfig extends Json {
                 ? Parkour.getDefaultConfig().get("CourseDefault.Settings." + key, def)
                 : ClassWrapper.getFromDef(raw, def);
     }
+
+    /**
+     * Get if interaction with a specific block is authorized in a course.
+     *
+     * @param block block to test interaction with
+     * @return {@code true} if interaction with block is allowed
+     */
+    public boolean getAllowedBlockInteraction(@NotNull Material block) {
+        return this.get("AllowedBlockInteractions." + block, false);
+    }
 }
